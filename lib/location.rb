@@ -9,6 +9,10 @@ class Location < Jsonable
     @lng = lng
   end
 
+  def distance_to(other)
+    Math.sqrt((other.lat - @lat) ** 2 + (other.lng - @lng) ** 2)
+  end
+
   def to_hash
     {lat: @lat, lng: @lng}
   end
