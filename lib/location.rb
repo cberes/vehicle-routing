@@ -11,8 +11,8 @@ class Location < Jsonable
     @lng = lng
   end
 
+  # returns the haversine distance between two coordinates
   def distance_to(other)
-    # find haversine distance between points
     phi_1 = to_radians(@lat)
     phi_2 = to_radians(other.lat)
     phi_d = to_radians(other.lat - @lat)
