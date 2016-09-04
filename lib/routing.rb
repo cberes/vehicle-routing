@@ -7,10 +7,11 @@ class Routing
   def initialize(drivers, orders)
     @drivers = drivers
     @orders = orders
-    @driver_locations_by_id = Hash[@drivers.collect { |driver| [driver.id, driver.location] }]
+    @driver_data_by_id = Hash[@drivers.collect {
+       |driver| [driver.id, { end: driver.location, cost: 0, orders: Array.new }]
+    }]
     @exhausted_driver_ids = Set.new
     @assigned_order_ids = Set.new
-    @assignments = Hash.new
     @unrouted = Array.new
   end
 
@@ -20,7 +21,7 @@ class Routing
     orders_by_size = @orders.partition { |order| order.large }
     # assign drivers to large orders, then small orders
     orders_by_size.each { |orders| route_all(orders) }
-    { routes: @assignments, unrouted: @unrouted }
+    { routes: @driver_data_by_id, unrouted: @unrouted }
   end
 
   # assign all of the orders to drivers
@@ -55,7 +56,7 @@ class Routing
 
   # returns the distance in miles between the driver and the order
   def distance_between(driver, order)
-    @driver_locations_by_id[driver.id].distance_to(order.origin)
+    @driver_data_by_id[driver.id][:end].distance_to(order.origin)
   end
 
   # assigns the order to the driver if possible, else adds the order to the unrouted list
@@ -69,9 +70,11 @@ class Routing
 
   # assigns the order to the driver, and updates the driver (whether its exhausted and its location)
   def assign(driver, order)
-    add_assignment(driver, order)
+    data = @driver_data_by_id[driver.id]
+    data[:orders].push(order.id)
+    data[:cost] += data[:end].distance_to(order.origin)
+    data[:end] = order.destination
     record_exhausted_driver(driver, order)
-    @driver_locations_by_id[driver.id] = order.destination
   end
 
   # returns whether the distance between the driver and order is value
@@ -79,24 +82,14 @@ class Routing
     distance_between(driver, order) <= MAX_DISTANCE_IN_MILES
   end
 
-  # pushes the assignment onto the driver's list
-  def add_assignment(driver, order)
-    if @assignments.include?(driver.id)
-      @assignments[driver.id].push(order.id)
-    else
-      @assignments[driver.id] = [order.id]
-    end
-  end 
-
   # marks the driver as exhausted if it is so
   def record_exhausted_driver(driver, order)
-    if order.large || @assignments[driver.id].length == MAX_SMALL_ORDERS
+    if order.large || @driver_data_by_id[driver.id][:orders].length == MAX_SMALL_ORDERS
       @exhausted_driver_ids.add(driver.id)
     end
   end
 
   private :route_all, :filter_new_orders, :route_next_order, :assign_if_possible, :assign,
-          :pair_with_nearest_driver, :distance_between, :valid_distance?, :add_assignment,
-          :record_exhausted_driver
+          :pair_with_nearest_driver, :distance_between, :valid_distance?, :record_exhausted_driver
 end
 
