@@ -4,6 +4,7 @@
 
 0. json
 0. sinatra
+0. rspec (tests)
 
 ## Example Usage
 
