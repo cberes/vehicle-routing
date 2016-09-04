@@ -1,6 +1,8 @@
 require 'set'
 
 class Routing
+  MAX_DISTANCE_IN_MILES = 5
+
   def initialize(drivers, orders)
     @drivers = drivers
     @orders = orders
@@ -20,9 +22,17 @@ class Routing
   def assign(order)
     available_drivers = @drivers.reject { |driver| @exhausted_drivers_ids.include?(driver.id) }
     driver = available_drivers.min_by { |driver| @driver_locations_by_id[driver.id].distance_to(order.origin) }
+    validate_distance(driver, order)
     add_assignment(driver, order)
     record_exhausted_driver(driver, order)
     @driver_locations_by_id[driver.id] = order.destination
+  end
+
+  def validate_distance(driver, order)
+    best_distance = @driver_locations_by_id[driver.id].distance_to(order.origin)
+    if best_distance > MAX_DISTANCE_IN_MILES
+      raise "Order #{order.id} not routable. Distance #{best_distance} > #{MAX_DISTANCE_IN_MILES}"
+    end
   end
 
   def add_assignment(driver, order)
@@ -39,6 +49,6 @@ class Routing
     end
   end
 
-  private :assign, :add_assignment, :record_exhausted_driver
+  private :assign, :validate_distance, :add_assignment, :record_exhausted_driver
 end
 
