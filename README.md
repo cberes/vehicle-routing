@@ -6,6 +6,14 @@
 0. sinatra
 0. rspec (tests)
 
+## Run the service
+
+    ruby lib/service.rb
+
+## Run tests
+
+    rspec tests
+
 ## Example Usage
 
     curl -v http://localhost:4567/route -XPOST -d'{"drivers":[
