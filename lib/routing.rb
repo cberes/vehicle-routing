@@ -51,7 +51,7 @@ class Routing
     # consider only the available drivers
     available_drivers = @drivers.reject { |driver| @exhausted_driver_ids.include?(driver.id) }
     driver = available_drivers.min_by { |driver| distance_between(driver, order) }
-    { order: order, driver: driver, distance: distance_between(driver, order) }
+    driver ? { order: order, driver: driver, distance: distance_between(driver, order) } : {order: order}
   end
 
   # returns the distance in miles between the driver and the order
@@ -61,7 +61,7 @@ class Routing
 
   # assigns the order to the driver if possible, else adds the order to the unrouted list
   def assign_if_possible(driver, order)
-    if valid_distance?(driver, order)
+    if driver && valid_distance?(driver, order)
       assign(driver, order)
     else
       @unrouted.push(order.id)

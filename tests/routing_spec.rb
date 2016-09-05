@@ -4,6 +4,33 @@ require './lib/order.rb'
 require './lib/routing.rb'
 
 describe Routing do
+  it "fails gracefully when given no drivers" do
+    drivers = []
+    orders = [Order.new(3, Location.new(0.01, 0.03), Location.new(0.01, 0.04), false),
+              Order.new(2, Location.new(0.01, 0.02), Location.new(0.01, 0.03), false),
+              Order.new(1, Location.new(0.01, 0.01), Location.new(0.01, 0.02), false)]
+    result = Routing.new(drivers, orders).route
+    expect(result[:routes].length).to eq(0)
+    expect(result[:unrouted]).to eq([3, 2, 1])
+  end
+
+  it "fails gracefully when given no orders" do
+    drivers = [Driver.new(1, Location.new(0.01, 0.01))]
+    orders = []
+    result = Routing.new(drivers, orders).route
+    expect(result[:routes].length).to eq(1)
+    expect(result[:routes][1][:orders]).to eq([])
+    expect(result[:unrouted]).to eq([])
+  end
+
+  it "fails gracefully when given no drivers and no orders" do
+    drivers = []
+    orders = []
+    result = Routing.new(drivers, orders).route
+    expect(result[:routes].length).to eq(0)
+    expect(result[:unrouted].length).to eq(0)
+  end
+
   it "routes 3 orders in a line" do
     drivers = [Driver.new(1, Location.new(0.01, 0.01))]
     orders = [Order.new(3, Location.new(0.01, 0.03), Location.new(0.01, 0.04), false),
