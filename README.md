@@ -1,4 +1,13 @@
-# routing-challenge
+# vehicle-routing
+
+A greedy solution for the Vehicle Routing Problem.
+
+## Conditions
+
+0. Drivers start in different locations.
+0. There is no mandate that drivers return to their origin locations.
+0. Orders can be small or large. A driver can take at most 3 small orders or 1 large order.
+0. Drivers cannot be assigned to orders that are more than 5 miles away.
 
 ## Dependencies
 
@@ -16,6 +25,8 @@
 
 ## Example Usage
 
+### Routes all orders
+
     curl -v http://localhost:4567/route -XPOST -d'{"drivers":[
     {"id":1,"location":{"lat":0.01,"lng":0.01}},
     {"id":2,"location":{"lat":0.04,"lng":0.05}},
@@ -29,7 +40,7 @@
     {"id":6,"origin":{"lat":0.10,"lng":0.00},"destination":{"lat":0.10,"lng":0.03},"large":false}
     ]}'
 
-Does not route order 4:
+### Does not route one order
 
     curl -v http://localhost:4567/route -XPOST -d'{"drivers":[
     {"id":1,"location":{"lat":0.01,"lng":0.01}},
@@ -44,7 +55,7 @@ Does not route order 4:
     {"id":6,"origin":{"lat":0.10,"lng":0.00},"destination":{"lat":0.10,"lng":0.03},"large":false}
     ]}'
 
-Three orders in a line
+### Routes three orders in a line
 
     curl -v http://localhost:4567/route -XPOST -d'{"drivers":[
     {"id":1,"location":{"lat":0.01,"lng":0.01}}
